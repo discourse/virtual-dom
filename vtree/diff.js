@@ -311,6 +311,33 @@ function reorder(aChildren, bChildren) {
     var inserts = []
     var simulateItem
 
+    // handle prepends without reordering old elements
+    var shift = bChildren.length - aChildren.length
+    if (shift > 0 && simulate.length === bChildren.length) {
+        var prepend = simulate.every(item => item && item.key)
+        prepend &&= aChildren.every((item, i) => item.key === bChildren[i + shift].key)
+
+        if (prepend) {
+            for (var i = 0; i < shift; i++) {
+                removes.push({
+                    from: aChildren.length,
+                    key: bChildren[i].key
+                })
+                inserts.push({
+                    to: i,
+                    key: bChildren[i].key
+                })
+            }
+            return {
+                children: newChildren,
+                moves: {
+                    removes: removes,
+                    inserts: inserts
+                }
+            }
+        }
+    }
+
     for (var k = 0; k < bChildren.length;) {
         var wantedItem = bChildren[k]
         simulateItem = simulate[simulateIndex]
