@@ -314,8 +314,13 @@ function reorder(aChildren, bChildren) {
     // handle prepends without reordering old elements
     var shift = bChildren.length - aChildren.length
     if (shift > 0 && simulate.length === bChildren.length) {
-        var prepend = simulate.every(item => item && item.key)
-        prepend &&= aChildren.every((item, i) => item.key === bChildren[i + shift].key)
+        var prepend = true
+        for (var i = 0; prepend && i < simulate.length; i++) {
+            prepend = simulate[i] && simulate[i].key
+        }
+        for (var i = 0; prepend && i < aChildren.length; i++) {
+            prepend = aChildren[i].key === bChildren[i + shift].key
+        }
 
         if (prepend) {
             for (var i = 0; i < shift; i++) {
