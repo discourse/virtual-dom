@@ -405,6 +405,76 @@ test("add to front and remove", function (assert) {
     assert.end()
 })
 
+test("prepending a single key doesn't cause removal of old keys", function (assert) {
+    var leftNode = h("div", [
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c")
+    ])
+
+    var rightNode = h("div", [
+        h("div", { key: "a" }, "a"),
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c")
+    ])
+
+    var patches = diff(leftNode, rightNode)
+    assert.notOk(reorderRemovesSome(patches, ["b", "c"]))
+    assert.end()
+})
+
+test("prepending several keys doesn't cause removal of old keys", function (assert) {
+    var leftNode = h("div", [
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c")
+    ])
+
+    var rightNode = h("div", [
+        h("div", { key: "a" }, "a"),
+        h("div", { key: "d" }, "d"),
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c")
+    ])
+
+    var patches = diff(leftNode, rightNode)
+    assert.notOk(reorderRemovesSome(patches, ["b", "c"]))
+    assert.end()
+})
+
+test("appending a single key doesn't cause removal of old keys", function (assert) {
+    var leftNode = h("div", [
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c")
+    ])
+
+    var rightNode = h("div", [
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c"),
+        h("div", { key: "a" }, "a")
+    ])
+
+    var patches = diff(leftNode, rightNode)
+    assert.notOk(reorderRemovesSome(patches, ["b", "c"]))
+    assert.end()
+})
+
+test("appending several keys doesn't cause removal of old keys", function (assert) {
+    var leftNode = h("div", [
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c")
+    ])
+
+    var rightNode = h("div", [
+        h("div", { key: "b" }, "b"),
+        h("div", { key: "c" }, "c"),
+        h("div", { key: "a" }, "a"),
+        h("div", { key: "d" }, "d"),
+    ])
+
+    var patches = diff(leftNode, rightNode)
+    assert.notOk(reorderRemovesSome(patches, ["b", "c"]))
+    assert.end()
+})
+
 test("adding multiple widgets", function (assert) {
     function FooWidget(foo) {
         this.foo = foo
@@ -791,9 +861,16 @@ function childNodesArray(node) {
 function getReorderPatch(patches) {
     for (var key in patches) {
         if (key !== "a" && patches.hasOwnProperty(key)) {
-            var patch = patches[key]
-            if (patch.type === VPatch.ORDER) {
-                return patch
+            var content = patches[key]
+            if (Array.isArray(content)) {
+                for (var i = 0; i < content.length; i++) {
+                    if (content[i].type === VPatch.ORDER) {
+                        return content[i]
+                    }
+                }
+            }
+            else if (content.type === VPatch.ORDER) {
+                return content
             }
         }
     }
@@ -805,4 +882,19 @@ function assertReorderEquals(assert, patches, expected) {
     var reorderPatch = getReorderPatch(patches)
 
     assert.deepEqual(reorderPatch.patch, expected)
+}
+
+function reorderRemovesSome(patches, keys) {
+    var reorderPatch = getReorderPatch(patches)
+    if (reorderPatch && reorderPatch.patch && reorderPatch.patch.removes) {
+        var removes = reorderPatch.patch.removes
+        for (var i = 0; i < removes.length; i++) {
+            for (var j = 0; j < keys.length; j++) {
+                if (removes[i].key === keys[j]) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false
 }
