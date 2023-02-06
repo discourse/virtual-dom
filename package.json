@@ -1,7 +1,7 @@
 {
-  "name": "virtual-dom",
-  "version": "2.1.1",
-  "description": "A batched diff-based DOM rendering strategy",
+  "name": "@discourse/virtual-dom",
+  "version": "2.1.2-0",
+  "description": "A fork of virtual-dom - adds handling for prepended elements",
   "keywords": [
     "virtual",
     "dom",
@@ -12,9 +12,9 @@
     "browser"
   ],
   "author": "Matt-Esch <matt@mattesch.info>",
-  "repository": "git://github.com/Matt-Esch/virtual-dom.git",
+  "repository": "git://github.com/discourse/virtual-dom.git",
   "main": "index",
-  "homepage": "https://github.com/Matt-Esch/virtual-dom",
+  "homepage": "https://github.com/discourse/virtual-dom",
   "contributors": [
     {
       "name": "Matt-Esch"
@@ -76,5 +76,9 @@
       "iphone/6.0..latest",
       "android-browser/4.2..latest"
     ]
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   }
 }
